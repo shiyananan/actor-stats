@@ -10,7 +10,7 @@ def legible_numbers(num):
     else:
         mults = [0.001, 'K'] if num <= 1000000 else [0.000001, 'M']
         rounded = round(num*mults[0])
-        return '${}{}'.format(rounded, mults[1])
+        return f'${rounded}{mults[1]}'
 
 
 def work_with_rt(actor_name_list):
@@ -60,7 +60,7 @@ def create_pandas(rt_table):
 def analyze_table(pandas_table):
     # find the total amount of the movies
     total_movies = pandas_table.index[-1]
-    print("There are totally {} movies in {}'s filmography.".format(total_movies, actor_name))
+    print(f"There are totally {total_movies} movies in {actor_name}'s filmography.")
 
 
     # get length of the career, considering the actor is dead or alive
@@ -76,40 +76,41 @@ def analyze_table(pandas_table):
     career_length = end_year - debut_year if not wiki_dead else last_movie_during_life - debut_year
     all_years = set([x for x in range(debut_year, end_year+1)])
 
-    print('{} debut was in {}'.format(pronouns[1].title(), debut_year), end=' ')
+    print(f'{pronouns[1].title()} debut was in {debut_year}', end=' ')
     if wiki_dead:
-        print('and {} last lifetime movie was released in {}'.format(pronouns[1], last_movie_during_life), end=' ')
+        print(f'and {pronouns[1]} last lifetime movie was released in {last_movie_during_life}', end=' ')
     lasts_or_lasted = 'lasted' if wiki_dead else 'lasts'
-    print('which means {} career {} for {} years.'.format(pronouns[1], lasts_or_lasted, career_length))
+    print(f'which means {pronouns[1]} career {lasts_or_lasted} for {career_length} years.')
 
 
     # find the average amount of the movies
     average_amount_movies = round(total_movies / career_length, 1)
-    print('{} averaged {} movie per year.'.format(pronouns[0].title(), average_amount_movies))
+    print(f'{pronouns[0].title()} averaged {average_amount_movies} movie per year.')
 
     # find all of the years there were no premieres of the movies with the actor (show them if len less than 5)
     no_premiere_years = set_of_years ^ all_years
     str_no_premiere = ', '.join(str(v) for v in no_premiere_years)
     if len(no_premiere_years) < 6:
-        print('Only in {} no movies with the {} were released.'.format(str_no_premiere, pronouns[2]))
+        print(f'Only in {str_no_premiere} no movies with the {pronouns[2]} were released.')
 
 
     # find the average value of the actor's movie score
     filt_score = pandas_table[pandas_table['score'] != 0]
-    print('The simple average score of all the movies with known score the {} was cast is {} out of 100.'.format(pronouns[2], int(pandas_table['score'].sum()/filt_score['score'].count())))
+    av_score = int(pandas_table['score'].sum()/filt_score['score'].count())
+    print(f'The simple average score of all the movies with known score the {pronouns[2]} was cast is {av_score} out of 100.')
 
 
     # find all of the highest values in a 'score' column
     highest_score = filt_score[filt_score['score'] == filt_score['score'].max()].sort_values(by=['year'])
     highest_score_list = highest_score.values.tolist()
     if len(highest_score_list) == 1:
-        print("The highest rated movie is '{}' ({})".format(highest_score_list[0][0], highest_score_list[0][1]), end='')
+        print(f"The highest rated movie is '{highest_score_list[0][0]}' ({highest_score_list[0][1]})", end='')
     else:
         highest_score_movies = ''
         for i in range(0, len(highest_score_list)):
             highest_score_movies += "'" + highest_score_list[i][0] + "' (" + str(highest_score_list[i][1]) + ')' + ', '
         print("Highest rated movies are", highest_score_movies.rstrip(', '), end='')
-    print(' - {}% of users rated it positively.'.format(highest_score_list[0][2]))
+    print(f' - {highest_score_list[0][2]}% of users rated it positively.')
 
 
     # show all of the movie titles with the score > 85 except the one/s with the highest value
@@ -119,10 +120,10 @@ def analyze_table(pandas_table):
     sg_or_pl = '' if amount_higher85 == 1 else 's'
     if amount_higher85 > 0:
         higher85_score_list = higher85_score[['title', 'year', 'score']].values.tolist()
-        print('There {} {} more high-rated (85% or more) movie{}:'.format(is_or_are, higher85_score.title.count(), sg_or_pl), end = ' ')
+        print(f'There {is_or_are} {higher85_score.title.count()} more high-rated (85% or more) movie{sg_or_pl}:', end = ' ')
         list_amount_higher85 = ''
         for i in range(0, len(higher85_score_list)):
-            list_amount_higher85 += "'" + higher85_score_list[i][0] + "' (" + str(higher85_score_list[i][1]) + ") - " + str(higher85_score_list[i][2]) + "%, "
+            list_amount_higher85 += f"'{higher85_score_list[i][0]}' ({str(higher85_score_list[i][1])}) - {str(higher85_score_list[i][2])}%, "
         print(list_amount_higher85.rstrip(', '), end='.')
     else:
         print('There are no other movies rated higher than 85% score.')
@@ -132,13 +133,13 @@ def analyze_table(pandas_table):
     lowest_score = filt_score[filt_score['score'] == filt_score['score'].min()]
     lowest_score_list = lowest_score.values.tolist()
     if len(lowest_score_list) == 1:
-        print("\nLowest rated movie is '{}' ({})".format(lowest_score_list[0][0], lowest_score_list[0][1]), end='')
+        print(f"\nLowest rated movie is '{lowest_score_list[0][0]}' ({lowest_score_list[0][1]})", end='')
     else:
         lowest_score_movies = ''
         for i in range(0, len(lowest_score_list)):
             lowest_score_movies += "'" + lowest_score_list[i][0] + "' (" + str(lowest_score_list[i][1]) + ')' + ', '
         print("Lowest rated movies are", lowest_score_movies.rstrip(', '), end='')
-    print(' - only {}% of users rated it positively.'.format(lowest_score_list[0][2]))
+    print(f' - only {lowest_score_list[0][2]}% of users rated it positively.')
 
 
     # find all of the highest values in a 'box office' column
@@ -146,13 +147,13 @@ def analyze_table(pandas_table):
     highest_bo = filt_bo[filt_bo['box office'] == filt_bo['box office'].max()]
     highest_bo_list = highest_bo.values.tolist()
     if len(highest_bo_list) == 1:
-        print("'{}' ({}) is the {}'s most fiscally fruitful film. It".format(highest_bo_list[0][0], highest_bo_list[0][1], pronouns[2]), end='')
+        print(f"'{highest_bo_list[0][0]}' ({highest_bo_list[0][1]}) is the {pronouns[2]}'s most fiscally fruitful film. It", end='')
     else:
         highest_bo_movies = ''
         for i in range(len(highest_bo_list)):
             highest_bo_movies += f"'{highest_bo_list[i][0]}' ({highest_bo_list[i][1]}),"
         print(highest_bo_movies.rstrip(', '), f"are the {pronouns[2]}'s most fiscally fruitful films. They ", end='')
-    print(' grossed {} worldwide.'.format(legible_numbers(highest_bo_list[0][3])))
+    print(f' grossed {legible_numbers(highest_bo_list[0][3])} worldwide.')
 
 
     # find all of the lowest values in a 'box office' column
@@ -162,13 +163,13 @@ def analyze_table(pandas_table):
         lowest_bo = filt_bo[filt_bo['box office'] == filt_bo['box office'].min()]
         lowest_bo_list = lowest_bo.values.tolist()
         if len(lowest_bo_list) == 1:
-            print("'{}' ({})".format(lowest_bo_list[0][0], lowest_bo_list[0][1]), end='')
+            print(f"'{lowest_bo_list[0][0]}' ({lowest_bo_list[0][1]})", end='')
         else:
             lowest_bo_movies = ''
-            for i in range(0, len(lowest_bo_list)):
-                lowest_bo_movies += "'" + lowest_bo_list[i][0] + "' (" + str(lowest_bo_list[i][1]) + ')' + ', '
+            for i in range(len(lowest_bo_list)):
+                lowest_bo_movies += f"'{lowest_bo_list[i][0]}' ({lowest_bo_list[i][1]}), "
             print(lowest_bo_movies.rstrip(', '), end='')
-        print(' earned just {} - {} times less!'.format(legible_numbers(lowest_bo_list[0][3]), times_less))
+        print(f' earned just {legible_numbers(lowest_bo_list[0][3])} - {times_less} times less!')
 
 
     # find all of the highest amounts of elements in the 'year' groups
@@ -177,7 +178,7 @@ def analyze_table(pandas_table):
     print('In', end=' ')
     for item in most_premieres.index:
         print(item, ', ', sep='', end='')
-    print('we could see the {} more often than usual - there were {} premieres of the movies with {} starring.'.format(pronouns[2], most_premieres.values[0], actor_name))
+    print(f'we could see the {pronouns[2]} more often than usual - there were {most_premieres.values[0]} premieres of the movies with {actor_name} starring.')
 
 
 status = False
@@ -208,7 +209,6 @@ while answer not in ('y', 'n'):
     else:
         print('Wrong input. Please type Y or N: ')
 
+
 # и сравнить даты рождения в википедии и роттен томатос
 #rt_birth_year = rt_doc.find(attrs={'class': 'celebrity-bio__item', 'data-qa': 'celebrity-bio-bday'}).get_text(strip=True)[-4:]
-# global and local
-# функция в функции
